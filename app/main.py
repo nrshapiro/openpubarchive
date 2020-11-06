@@ -4,7 +4,11 @@
 __author__      = "Neil R. Shapiro"
 __copyright__   = "Copyright 2020, Psychoanalytic Electronic Publishing"
 __license__     = "Apache 2.0"
+<<<<<<< HEAD
 __version__     = "2020.1106.0.Alpha"
+=======
+__version__     = "2020.1102.1.Alpha"
+>>>>>>> parent of 97ea51e... 2020.1102.2.Alpha
 __status__      = "Development"
 
 """

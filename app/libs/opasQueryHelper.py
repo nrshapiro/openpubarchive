@@ -60,18 +60,6 @@ cores  = {
     "authors": solr_authors,
 }
 
-def not_empty(arg):
-    if arg is not None and arg != "":
-        return True
-    else:
-        return False
-
-def is_empty(arg):
-    if arg is None or arg == "":
-        return True
-    else:
-        return False
-
 def cleanup_solr_query(solrquery):
     """
     Clean up whitespace and extra symbols that happen when building up query or solr query filter
@@ -275,7 +263,7 @@ class QueryTextToSolr():
 
     def boolConnectorsToSymbols(self, str_input):
         ret_val = str_input
-        if not_empty(ret_val):
+        if ret_val is not None and ret_val != "":
             ret_val = self.token_or.sub(" || ", ret_val)
             ret_val = self.token_and.sub(" && ", ret_val)
             ret_val = self.token_not.sub(" NOT ", ret_val) # upper case a must
@@ -438,15 +426,15 @@ def get_term_list_spec(termlist):
             if q_term.synonyms:
                 use_field = use_field + q_term.synonyms_suffix
             
-            if use_field is not None and not_empty(q_term.words):
+            if use_field is not None and q_term.words is not None:
                 sub_clause = f"{use_field}:({q_term.words})"
             else:
-                if not_empty(q_term.words):
+                if q_term.words is not None:
                     sub_clause = f"({q_term.words})"
                 else:
                     sub_clause = ""
             if ret_val == "":
-                ret_val = f"{sub_clause} "
+                ret_val += f"{sub_clause} "
             else:
                 ret_val += f" {boolean_connector} {sub_clause}"
 
@@ -654,7 +642,7 @@ def parse_search_query_parameters(search=None,             # url based parameter
         solr_query_spec.solrQueryOpts.hlFragsize = extra_context_len
            
     # v1 translation:
-    if not_empty(journal):
+    if journal is not None and journal != "":
         source_code = journal
 
     if similar_count > 0:
@@ -720,29 +708,27 @@ def parse_search_query_parameters(search=None,             # url based parameter
         search_result_explanation = search_dict[KEY_SEARCH_SMARTSEARCH]
         if schema_field is not None:
             schema_value = search_dict.get("schema_value")
-            if not_empty(schema_value):
-                if "'" in schema_value or '"' in schema_value:
-                    search_q += f"&& {schema_field}:{schema_value} "
-                else:
-                    search_q += f"&& {schema_field}:({schema_value}) "
-                limit = 1
+            if "'" in schema_value or '"' in schema_value:
+                search_q += f"&& {schema_field}:{schema_value} "
+            else:
+                search_q += f"&& {schema_field}:({schema_value}) "
+            limit = 1
         else:
             syntax = search_dict.get("syntax")
             if syntax is not None:
                 if syntax == "solr" and search_q == "*:*":
                     query = search_dict.get("query")
-                    if query is not None:
-                        search_q = f"{query}"
-                        limit = 1
+                    search_q = f"{query}"
+                    limit = 1
             else:
                 doi = search_dict.get("doi")
-                if not_empty(doi):
+                if doi is not None:
                     filter_q += f"&& art_doi:({doi}) "
                     limit = 1
                     
         if limit == 0: # not found special token
             art_id = search_dict.get("art_id")
-            if not_empty(art_id):
+            if art_id is not None:
                 limit = 1
                 filter_q += f"&& art_id:({art_id}) "
             else:
@@ -752,7 +738,7 @@ def parse_search_query_parameters(search=None,             # url based parameter
                         vol = art_vol.lstrip("0")
         
                 art_pgrg = search_dict.get("pgrg")
-                if not_empty(art_pgrg):
+                if art_pgrg is not None:
                     # art_pgrg1 = art_pgrg.split("-")
                     if "-" in art_pgrg:
                         filter_q += f"&& art_pgrg:({art_pgrg}) "
@@ -791,19 +777,20 @@ def parse_search_query_parameters(search=None,             # url based parameter
                         else:
                             q1 = word_search
                             
-                        if not_empty(q1):
-                            # unquoted string
-                            m = re.search('\|{2,2}|\&{2,2}|\sand\s|\sor\s', q1, flags=re.IGNORECASE)
-                            if m: # boolean, pass through
-                                search_q += f"&& {q1} "
-                            else:
-                                # terms
-                                field_name = "body_xml"
-                                if synonyms:
-                                    field_name += "_syn"
-                                search_q += f'&& {field_name}:"{q1}"~25 '
-                                art_level = 1
-                                       
+                        # unquoted string
+                        m = re.search('\|{2,2}|\&{2,2}|\sand\s|\sor\s', q1, flags=re.IGNORECASE)
+                        if m: # boolean, pass through
+                            search_q += f"&& {q1} "
+                        else:
+                            # terms
+                            field_name = "body_xml"
+                            if synonyms:
+                                field_name += "_syn"
+                                
+                            search_q += f'&& {field_name}:"{q1}"~25 '
+                            art_level = 1
+                            
+            
 
     if art_level is not None:
         filter_q = f"&& art_level:{art_level} "  # for solr filter fq
@@ -880,16 +867,16 @@ def parse_search_query_parameters(search=None,             # url based parameter
                 if query.synonyms:
                     use_field = use_field + query.synonyms_suffix
                 
-                if not_empty(query.words):
-                    if use_field is not None:
-                        sub_clause = f"{use_field}:({query.words})"
-                    else:
-                        sub_clause = f"({query.words})"
-
-                    query_term_list.append(sub_clause)
+                if use_field is not None and query.words is not None:
+                    sub_clause = f"{use_field}:({query.words})"
                 else:
-                    sub_clause = ""
+                    if query.words is not None:
+                        sub_clause = f"({query.words})"
+                    else:
+                        sub_clause = ""
     
+                query_term_list.append(sub_clause)
+                
                 if query_sub_clause != "":
                     query_sub_clause += boolean_connector
                     
@@ -905,7 +892,7 @@ def parse_search_query_parameters(search=None,             # url based parameter
     
             # now look for filter clauses in body queryTermList       
             filter_sub_clause = ""
-            # qfilterTerm = ""
+            qfilterTerm = ""
             filter_sub_clause = get_term_list_spec(solrQueryTermList.qf)
             if filter_sub_clause != "":
                 analyze_this = f"&& ({filter_sub_clause})"
@@ -964,14 +951,14 @@ def parse_search_query_parameters(search=None,             # url based parameter
             search_analysis_term_list.append(analyze_this)  
             query_term_list.append(title)
 
-    if not_empty(source_name):
+    if source_name is not None and source_name != "":
         # accepts a journal, book or video series name and optional wildcard.  No booleans.
         analyze_this = f"&& art_sourcetitlefull:({source_name}) "
         filter_q += analyze_this
         search_analysis_term_list.append(analyze_this)
         query_term_list.append(f"art_sourcetitlefull:({source_name})")       
 
-    if not_empty(source_type):  # source_type = book, journal, video ... (maybe more later)
+    if source_type is not None:  # source_type = book, journal, video ... (maybe more later)
         # accepts a source type or boolean combination of source types.
         source_type = qparse.markup(source_type, "art_sourcetype") # convert AND/OR/NOT, set up field
         analyze_this = f"&& {source_type} "
@@ -979,7 +966,7 @@ def parse_search_query_parameters(search=None,             # url based parameter
         search_analysis_term_list.append(analyze_this)  
         query_term_list.append(source_type)       
 
-    if not_empty(source_lang_code):  # source_language code, e.g., "EN" (added 2020-03, was omitted)
+    if source_lang_code is not None:  # source_language code, e.g., "EN" (added 2020-03, was omitted)
         # accepts a source language code list (e.g., EN, DE, ...).  If a list of codes with boolean connectors, changes to simple OR list
         source_lang_code = source_lang_code.lower()
         if "," in source_lang_code:
@@ -990,7 +977,7 @@ def parse_search_query_parameters(search=None,             # url based parameter
         filter_q += analyze_this
         search_analysis_term_list.append(analyze_this)
         
-    if not_empty(source_code):
+    if source_code is not None and source_code != "":
         # accepts a journal or book code (no wildcards) or a list of journal or book codes (no wildcards)
         # ALSO can accept a single source name or partial name with an optional wildcard.  But
         #   that's really what argument source_name is for, so this is just extra and may be later removed.
@@ -1029,26 +1016,26 @@ def parse_search_query_parameters(search=None,             # url based parameter
         # or it could be an abbreviation #TODO
         # or it counld be a complete name #TODO
 
-    if not_empty(cited_art_id):
+    if cited_art_id is not None:
         cited_art_id = cited_art_id.upper()
         cited = qparse.markup(cited_art_id, "bib_rx") # convert AND/OR/NOT, set up field query
         analyze_this = f"&& {cited} "
         filter_q += analyze_this
         search_analysis_term_list.append(analyze_this)  # Not collecting this!
     
-    if not_empty(vol):
+    if vol is not None:
         vol = qparse.markup(vol, "art_vol") # convert AND/OR/NOT, set up field query
         analyze_this = f"&& {vol} "
         filter_q += analyze_this
         search_analysis_term_list.append(analyze_this)  # Not collecting this!
 
-    if not_empty(issue):
+    if issue is not None:
         issue = qparse.markup(issue, "art_iss") # convert AND/OR/NOT, set up field query
         analyze_this = f"&& {issue} "
         filter_q += analyze_this
         search_analysis_term_list.append(analyze_this)  # Not collecting this!
 
-    if not_empty(author):
+    if author is not None:
         author = author
         # if there's or and or not in lowercase, need to uppercase them
         # author = " ".join([x.upper() if x in ("or", "and", "not") else x for x in re.split("\s+(and|or|not)\s+", author)])
@@ -1062,7 +1049,7 @@ def parse_search_query_parameters(search=None,             # url based parameter
         search_analysis_term_list.append(analyze_this)  
         query_term_list.append(author)       
 
-    if not_empty(articletype):
+    if articletype is not None:
         # articletype = " ".join([x.upper() if x in ("or", "and", "not") else x for x in re.split("\s+(and|or|not)\s+", articletype)])
         articletype = qparse.markup(articletype, "art_type") # convert AND/OR/NOT, set up field query
         analyze_this = f"&& {articletype} "   # search analysis
@@ -1070,7 +1057,7 @@ def parse_search_query_parameters(search=None,             # url based parameter
         search_analysis_term_list.append(analyze_this)
         query_term_list.append(articletype)       
         
-    if not_empty(datetype):
+    if datetype is not None:
         #TODO for now, lets see if we need this. (We might not)
         pass
 
@@ -1096,7 +1083,7 @@ def parse_search_query_parameters(search=None,             # url based parameter
 
     if startyear is None and endyear is not None:
         if re.match("[12][0-9]{3,3}", endyear) is None:
-            logger.warning(f"Search - Endyear {endyear} bad argument")
+            logger.info(f"Search - Endyear {endyear} bad argument")
         else:
             analyze_this = f"&& art_year_int:[* TO {endyear}] "
             filter_q += analyze_this
@@ -1356,18 +1343,18 @@ def parse_to_query_spec(solr_query_spec: models.SolrQuerySpec = None,
 
     # part of the query model
 
-    if not_empty(query):
+    if query is not None and query != "":
         solr_query_spec.solrQuery.searchQ = query
         logger.debug(f"query: {query}. Request: {req_url}")
     else:
-        if is_empty(solr_query_spec.solrQuery.searchQ):
+        if solr_query_spec.solrQuery.searchQ is None or solr_query_spec.solrQuery.searchQ == "":
             logger.debug(f"query and searchQ were None or empty. Chgd to *:*. {query}. Request: {req_url}")
             solr_query_spec.solrQuery.searchQ = "*:*"       
 
     if filter_query is not None:
         solr_query_spec.solrQuery.filterQ = filter_query
 
-    if not_empty(solr_query_spec.solrQuery.filterQ):
+    if solr_query_spec.solrQuery.filterQ is not None:
         # for logging/debug
         solr_query_spec.solrQuery.filterQ = solr_query_spec.solrQuery.filterQ.replace("*:* && ", "")
         logger.debug("Solr FilterQ: %s", filter_query)
@@ -1375,7 +1362,7 @@ def parse_to_query_spec(solr_query_spec: models.SolrQuerySpec = None,
         solr_query_spec.solrQuery.filterQ = "*:*"
         
     #  clean up spaces and cr's from in code readable formatting
-    if not_empty(solr_query_spec.returnFields):
+    if solr_query_spec.returnFields is not None:
         solr_query_spec.returnFields = ", ".join(e.lstrip() for e in solr_query_spec.returnFields.split(","))
 
     if sort is not None:
@@ -1718,7 +1705,7 @@ def search_text_qs(solr_query_spec: models.SolrQuerySpec,
                                 
     else: #  search was ok
         try:
-            logger.info(f"Search Ok. Result Size:{results._numFound}; Search:{solr_query_spec.solrQuery.searchQ}; Filter:{solr_query_spec.solrQuery.searchQ}")
+            logger.info(f"Result Size: {results._numFound}; Search: {solr_query_spec.solrQuery.searchQ}; Filter: {solr_query_spec.solrQuery.searchQ}")
             scopeofquery = [solr_query_spec.solrQuery.searchQ, solr_query_spec.solrQuery.filterQ]
     
             if ret_status[0] == 200: 
