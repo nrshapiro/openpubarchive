@@ -4,7 +4,7 @@
 __author__      = "Neil R. Shapiro"
 __copyright__   = "Copyright 2020, Psychoanalytic Electronic Publishing"
 __license__     = "Apache 2.0"
-__version__     = "2020.1118.4.Alpha"
+__version__     = "2020.1118.5.Alpha"
 __status__      = "Development"
 
 """
@@ -146,6 +146,7 @@ import opasFileSupport
 import opasQueryHelper
 import opasSchemaHelper
 import opasDocPermissions
+import opasPySolrLib
 
 # Check text server version
 text_server_ver = None
@@ -3151,11 +3152,11 @@ def database_whatsnew(response: Response,
     
     try:
         # return whatsNewList
-        ret_val = opasAPISupportLib.database_get_whats_new(limit=limit, 
-                                                           offset=offset,
-                                                           days_back=days_back, 
-                                                           req_url=request.url
-                                                           )
+        ret_val = opasPySolrLib.database_get_whats_new(limit=limit, 
+                                                       offset=offset,
+                                                       days_back=days_back, 
+                                                       req_url=request.url
+                                                       )
 
     except Exception as e:
         e = str(e)
@@ -3349,7 +3350,7 @@ def metadata_videos(response: Response,
         source_type = "videos"
     
     # TEMP - force for now, as a test    
-    source_type = "videos"
+    # source_type = "stream"
     
     ret_val = metadata_by_sourcetype_sourcecode(response,
                                                 request,

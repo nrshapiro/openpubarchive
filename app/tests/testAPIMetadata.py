@@ -404,19 +404,6 @@ class TestMetadata(unittest.TestCase):
         # Confirm that the request-response cycle completed successfully.
         assert(response.ok == False)
         
-    def test_9a_meta_journal_parameter_errors(self):
-        """
-        /v2/Metadata/Journals/ (with sample of errors)
-        /v1/Metadata/Journals/ (with sample of errors)
-        """
-        full_URL = base_plus_endpoint_encoded('/v2/Metadata/Journals/?limit=20&offset=0&sourcecode=a')
-        response = requests.get(full_URL, headers=headers)
-        assert(response.ok == True)
-        # test return
-        r = response.json()
-        print (f"Journal Count: {r['sourceInfo']['responseInfo']['fullCount']}")
-        assert(r['sourceInfo']['responseInfo']['fullCount'] == 0)
-        
 if __name__ == '__main__':
     unittest.main()
     print ("Tests Complete.")

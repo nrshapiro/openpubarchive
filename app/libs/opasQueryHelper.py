@@ -1613,9 +1613,9 @@ def search_text_qs(solr_query_spec: models.SolrQuerySpec,
 
     try:
         if solr_query_spec.solrQueryOpts.hlMaxAnalyzedChars < 200: # let caller configure, but not 0!
-            solr_query_spec.solrQueryOpts.hlMaxAnalyzedChars = opasConfig.SOLR_HIGHLIGHT_RETURN_FRAGMENT_SIZE
+            solr_query_spec.solrQueryOpts.hlMaxAnalyzedChars = opasConfig.SOLR_HIGHLIGHT_RETURN_MIN_FRAGMENT_SIZE # opasConfig.SOLR_HIGHLIGHT_RETURN_FRAGMENT_SIZE
     except:
-        solr_query_spec.solrQueryOpts.hlMaxAnalyzedChars = opasConfig.SOLR_HIGHLIGHT_RETURN_FRAGMENT_SIZE
+        solr_query_spec.solrQueryOpts.hlMaxAnalyzedChars = opasConfig.SOLR_HIGHLIGHT_RETURN_MIN_FRAGMENT_SIZE # opasConfig.SOLR_HIGHLIGHT_RETURN_FRAGMENT_SIZE
     #else: OK, leave it be!
 
     try: # must have value
@@ -1644,6 +1644,9 @@ def search_text_qs(solr_query_spec: models.SolrQuerySpec,
         logger.error(f">>>>>> solr_query_spec.solrQuery.searchQ is {solr_query_spec.solrQuery.searchQ}.  Filter: {solr_query_spec.solrQuery.filterQ} The endpoint request was: {req_url}")
         solr_query_spec.solrQuery.searchQ = "*.*"
 
+    # one last cleaning
+    solr_query_spec.solrQuery.searchQ = solr_query_spec.solrQuery.searchQ.replace(" && *:*", "")
+    solr_query_spec.solrQuery.filterQ = solr_query_spec.solrQuery.filterQ.replace(" && *:*", "")
     try:
         solr_param_dict = { 
                             "q": solr_query_spec.solrQuery.searchQ,
@@ -1668,7 +1671,7 @@ def search_text_qs(solr_query_spec: models.SolrQuerySpec,
                             "mlt_fl" : mlt_fl,
                             "mlt_count" : mlt_count,
                             "mlt_minwl" : mlt_minwl,
-                            "mlt.interestingTerms" : "list",
+                            # "mlt.interestingTerms" : "list",
                             "rows" : solr_query_spec.limit,
                             "start" : solr_query_spec.offset,
                             "sort" : solr_query_spec.solrQuery.sort,
@@ -1743,7 +1746,10 @@ def search_text_qs(solr_query_spec: models.SolrQuerySpec,
         ret_val = models.ErrorReturn(httpcode=httpCodes.HTTP_400_BAD_REQUEST, error="Search syntax error", error_description=f"{e.getMessage()}")
         ret_status = (httpCodes.HTTP_400_BAD_REQUEST, e) # e has type <class 'solrpy.core.SolrException'>, with useful elements of httpcode, reason, and body, e.g.,
         logger.error(f"Solr Runtime Search Error (parse): {ret_val}. Params sent: {solr_param_dict}")
-                                
+
+    except AttributeError as e:
+        logger.error(f"Attribute Error: {e}")
+    
     except Exception as e:
         ret_val = models.ErrorReturn(httpcode=e.httpcode, error="Search syntax error", error_description=f"There's an error in your input (no reason supplied)")
         ret_status = (httpCodes.HTTP_400_BAD_REQUEST, e) # e has type <class 'solrpy.core.SolrException'>, with useful elements of httpcode, reason, and body, e.g.,

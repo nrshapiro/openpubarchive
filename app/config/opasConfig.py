@@ -413,148 +413,21 @@ SYNONYM_SUFFIX = "_syn"
 # Must not have spaces
 DOCUMENT_VIEW_FACET_LIST = "glossary_group_terms,terms_highlighted,art_kwds_str"
 GLOSSARY_VIEW_FACET_LIST = "glossary_group_terms,terms_highlighted,art_kwds_str"
-DEFAULT_MORE_LIKE_THIS_FIELDS = "art_kwds, title, text_xml"
+DEFAULT_MORE_LIKE_THIS_FIELDS = "art_kwds,title,text_xml"
 DEFAULT_MORE_LIKE_THIS_COUNT = 0
 
 # Standard Document List Summary fields 
 # (potential data return in document list)
 # Indent moved to left so when in query, only a few spaces sent to Solr
 
-# DOCUMENT_ITEM_SUMMARY_FIELDS ="art_id, art_title, art_title_xml, art_subtitle_xml, art_author_id, art_authors, art_citeas_xml, art_info_xml, art_sourcecode, art_sourcetitleabbr, art_sourcetitlefull, art_sourcetype, art_level, para_art_id,parent_tag, para, art_vol, art_type, art_vol_title, art_year, art_iss, art_iss_title, art_newsecnm, art_pgrg, art_lang, art_doi, art_issn, art_origrx, art_qual, art_kwds, art_cited_all, art_cited_5, art_cited_10, art_cited_20, art_views_lastcalyear, art_views_last1mos, art_views_last6mos, art_views_last12mos, art_views_lastweek, reference_count, file_last_modified, timestamp, score"
-
-DOCUMENT_ITEM_SUMMARY_FIELDS ="""
- art_id, 
- art_title, 
- art_title_xml, 
- art_subtitle_xml, 
- art_author_id, 
- art_authors, 
- art_citeas_xml, 
- art_info_xml, 
- art_sourcecode, 
- art_sourcetitleabbr, 
- art_sourcetitlefull, 
- art_sourcetype, 
- art_level,
- para_art_id,
- parent_tag, 
- para, 
- art_vol, 
- art_type, 
- art_vol_title, 
- art_year, 
- art_iss, 
- art_iss_title, 
- art_newsecnm, 
- art_pgrg, 
- art_lang, 
- art_doi, 
- art_issn, 
- art_origrx, 
- art_qual, 
- art_kwds, 
- art_cited_all, 
- art_cited_5, 
- art_cited_10, 
- art_cited_20, 
- art_views_lastcalyear, 
- art_views_last1mos, 
- art_views_last6mos, 
- art_views_last12mos, 
- art_views_lastweek, 
- reference_count, 
- file_last_modified, 
- timestamp, 
- score
-"""
-
+DOCUMENT_ITEM_SUMMARY_FIELDS ="art_id, art_title, art_title_xml, art_subtitle_xml, art_author_id, art_authors, art_citeas_xml, art_info_xml, art_sourcecode, art_sourcetitleabbr, art_sourcetitlefull, art_sourcetype, art_level, para_art_id,parent_tag, para, art_vol, art_type, art_vol_title, art_year, art_iss, art_iss_title, art_newsecnm, art_pgrg, art_lang, art_doi, art_issn, art_origrx, art_qual, art_kwds, art_cited_all, art_cited_5, art_cited_10, art_cited_20, art_views_lastcalyear, art_views_last1mos, art_views_last6mos, art_views_last12mos, art_views_lastweek, reference_count, file_last_modified, timestamp, score"
 # try the more squashed approach to listing, see if that shows better in the solr call logs
-DOCUMENT_ITEM_VIDEO_FIELDS = """
-art_id,art_issn, art_sourcecode, art_authors, title, art_subtitle_xml, art_title_xml,
-art_sourcetitlefull,art_sourcetitleabbr,art_info_xml, art_vol,art_vol_title, art_year, art_iss, art_iss_title, art_year, art_citeas_xml, art_pgrg, art_lang, art_origrx, art_qual, art_kwds 
-"""
-
-DOCUMENT_ITEM_TOC_FIELDS = """
- art_id, 
- art_info_xml, 
- art_title_xml, 
- art_subtitle_xml, 
- art_authors_xml, 
- art_citeas_xml, 
- art_sourcecode, 
- art_sourcetitleabbr, 
- art_sourcetitlefull, 
- art_level, 
- art_vol, 
- art_type, 
- art_vol_title, 
- art_year, 
- art_iss, 
- art_iss_title, 
- art_newsecnm, 
- art_pgrg, 
- art_lang, 
- art_doi, 
- art_issn, 
- art_origrx, 
- art_qual, 
- art_kwds, 
- score
-"""
-
-DOCUMENT_ITEM_META_FIELDS ="""
- art_id, 
- meta_xml, 
- art_citeas_xml, 
- art_title_xml, 
- art_subtitle_xml, 
- art_authors_xml, 
- art_sourcecode, 
- art_sourcetitleabbr, 
- art_sourcetitlefull,
- art_vol,
- art_year, 
- art_pgrg,
- score
-"""
-
-DOCUMENT_ITEM_STAT_FIELDS = """
- art_id, 
- art_citeas_xml, 
- art_title, 
- art_authors, 
- art_sourcecode, 
- art_sourcetitleabbr, 
- art_sourcetitlefull, 
- art_vol, 
- art_year, 
- art_cited_all, 
- art_cited_5, 
- art_cited_10, 
- art_cited_20, 
- art_views_lastcalyear, 
- art_views_last1mos, 
- art_views_last6mos, 
- art_views_last12mos, 
- art_views_lastweek, 
- reference_count, 
- score
-"""
-
+DOCUMENT_ITEM_VIDEO_FIELDS = "art_id,art_issn, art_sourcecode, art_authors, title, art_subtitle_xml, art_title_xml, art_sourcetitlefull, art_sourcetitleabbr, art_info_xml, art_vol,art_vol_title, art_year, art_iss, art_iss_title, art_year, art_citeas_xml, art_pgrg, art_lang, art_origrx, art_qual, art_kwds"
+DOCUMENT_ITEM_TOC_FIELDS = "art_id, art_info_xml, art_title_xml, art_subtitle_xml, art_authors_xml, art_citeas_xml, art_sourcecode, art_sourcetitleabbr, art_sourcetitlefull, art_level, art_vol, art_type, art_vol_title, art_year, art_iss, art_iss_title, art_newsecnm, art_pgrg, art_lang, art_doi, art_issn, art_origrx, art_qual, art_kwds, score"
+DOCUMENT_ITEM_META_FIELDS =" art_id, meta_xml, art_citeas_xml, art_title_xml, art_subtitle_xml, art_authors_xml, art_sourcecode, art_sourcetitleabbr, art_sourcetitlefull, art_vol, art_year, art_pgrg, score"
+DOCUMENT_ITEM_STAT_FIELDS = "art_id, art_citeas_xml, art_title, art_authors, art_sourcecode, art_sourcetitleabbr, art_sourcetitlefull, art_vol, art_year, art_cited_all, art_cited_5, art_cited_10, art_cited_20, art_views_lastcalyear, art_views_last1mos, art_views_last6mos, art_views_last12mos, art_views_lastweek, reference_count, score"
 # for Glossary Core
-GLOSSARY_ITEM_DEFAULT_FIELDS = """
- art_id,
- term_id,
- group_id,
- term,
- term_type,
- term_source,
- term_def_xml,
- term_def_rest_xml,
- group_name,
- group_term_count,
- text
-"""
+GLOSSARY_ITEM_DEFAULT_FIELDS = "art_id, term_id, group_id, term, term_type, term_source, term_def_xml, term_def_rest_xml, group_name, group_term_count, text"
 
 running_head_fmts = {
     'xml': "<p><cgrp name='pub_year'>({pub_year})</cgrp>. <cgrp name='source_title'>{source_title}</cgrp><cgrp name='vol'>{vol}</cgrp><cgrp name='issue'>{issue}</cgrp><cgrp name='pgrg'>{pgrg}</cgrp></p>", 

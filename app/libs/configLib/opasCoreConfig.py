@@ -47,12 +47,14 @@ else:
 # for eventual transition to pysolr!
 if SOLRUSER is not None and SOLRPW is not None:
     solr_docs2 = pysolr.Solr(SOLRURL + SOLR_DOCS, auth=(SOLRUSER, SOLRPW))
+    solr_docs_term_search2 = pysolr.Solr(SOLRURL + SOLR_DOCS, "/terms", auth=(SOLRUSER, SOLRPW))
     solr_gloss2 = pysolr.Solr(SOLRURL + SOLR_GLOSSARY, auth=(SOLRUSER, SOLRPW))
     solr_authors2 = pysolr.Solr(SOLRURL + SOLR_AUTHORS, auth=(SOLRUSER, SOLRPW))
-    solr_authors_term_search2 = pysolr.Solr(solr_authors, "/terms")
-    solr_like_this2 = pysolr.Solr(solr_authors, "/mlt")
+    solr_authors_term_search2 = pysolr.Solr(solr_authors, "/terms", auth=(SOLRUSER, SOLRPW))
+    solr_like_this2 = pysolr.Solr(solr_authors, "/mlt", auth=(SOLRUSER, SOLRPW))
 else: #  no user and password needed
     solr_docs2 = pysolr.Solr(SOLRURL + SOLR_DOCS)
+    solr_docs_term_search2 = pysolr.Solr(solr_docs, "/terms")
     solr_gloss2 = pysolr.Solr(SOLRURL + SOLR_GLOSSARY)
     solr_authors2 = pysolr.Solr(SOLRURL + SOLR_AUTHORS)
     solr_authors_term_search2 = pysolr.Solr(solr_authors, "/terms")

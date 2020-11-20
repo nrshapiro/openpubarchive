@@ -540,7 +540,7 @@ class SolrQueryOpts(BaseModel):
     hlFields: str = Schema('text_xml', title="highlight fields (KWIC)", description="Specific fields to highlight.")
     hlMethod: str = Schema("unified", title="Highlighter method", description="Use either unified (fastest) or original.")
     hlFragsize: str = Schema(0, title="highlight fragment size", description="KWIC segment lengths")
-    hlMaxAnalyzedChars: int = Schema(0, title="The character limit to look for highlights, after which no highlighting will be done. This is mostly only a performance concern")
+    hlMaxAnalyzedChars: int = Schema(200, title="The character limit to look for highlights, after which no highlighting will be done. This is mostly only a performance concern")
     hlMaxKWICReturns: int = Schema(opasConfig.DEFAULT_MAX_KWIC_RETURNS, title="The character limit to look for highlights, after which no highlighting will be done. This is mostly only a performance concern")
     hlMultiterm: str = Schema('true', title="If set to true, Solr will highlight wildcard queries (and other MultiTermQuery subclasses). If false, they won’t be highlighted at all.")
     hlTagPost: str = Schema('@@@@#', title="Markup (tag) after hit term")

@@ -128,6 +128,7 @@ import opasGenSupportLib as opasgenlib
 import opasCentralDBLib
 import schemaMap
 import opasDocPermissions as opasDocPerm
+import opasPySolrLib
 
 count_anchors = 0
 
@@ -641,7 +642,7 @@ def database_get_whats_new(days_back=7,
     >>> result = database_get_whats_new()
 
     """    
-    field_list = "art_id, title, art_vol, art_iss, art_sourcecode, file_last_modified, timestamp, art_sourcetype"
+    field_list = "art_id, title, art_vol, art_iss, art_sourcecode, art_sourcetitlefull, art_sourcetitleabbr, file_last_modified, timestamp, art_sourcetype"
     sort_by = "file_last_modified"
 
     # two ways to get date, slightly different meaning: timestamp:[NOW-{days_back}DAYS TO NOW] AND file_last_modified:[NOW-{days_back}DAYS TO NOW]
@@ -1230,7 +1231,7 @@ def metadata_get_database_statistics(session_info=None):
     book_facet_product_keys = book_facet_fields["art_product_key"]
     content.book_count = len(book_facet_product_keys)
     content.source_count = dict(OrderedDict(sorted(src_counts.items(), key=lambda t: t[0])))
-    vols = metadata_get_volumes(source_type="journal")    
+    vols = opasPySolrLib.metadata_get_volumes(source_type="journal")    
     content.vol_count = vols.volumeList.responseInfo.fullCount
     year_counts = facet_fields["art_year"]
     years = [int(x) for x,y in year_counts.items()]
@@ -1416,7 +1417,7 @@ def metadata_get_source_info(src_type=None, # opasConfig.VALS_PRODUCT_TYPES
             raise Exception(err)
 
     if src_type == "videos":
-        total_count, source_info_dblist, ret_val, return_status = metadata_get_videos(src_type=src_type, pep_code=src_code, limit=limit, offset=offset)
+        total_count, source_info_dblist, ret_val, return_status = opasPySolrLib.metadata_get_videos(src_type=src_type, pep_code=src_code, limit=limit, offset=offset)
         count = len(source_info_dblist)
         if return_status != (200, "OK"):
             raise Exception(return_status(1))
@@ -1879,12 +1880,20 @@ def documents_get_document(document_id,
                                                     option_flags=option_flags # dictionary of return options
                                                     )
 
-        document_list, ret_status = search_text_qs(solr_query_spec,
-                                                   #limit=limit,
-                                                   #offset=offset, 
-                                                   session_info=session_info
-                                                   )
-
+        try_no = 1
+        while try_no < 2:
+            try:
+                document_list, ret_status = search_text_qs(solr_query_spec,
+                                                           session_info=session_info
+                                                           )
+            except Exception as e:
+                #  try again
+                try_no += 1
+                logger.error("Solr error ({e}).  Trying again")
+                document_list, ret_status = search_text_qs(solr_query_spec,
+                                                           session_info=session_info
+                                                           )
+                    
         try:
             matches = document_list.documentList.responseInfo.count
             if matches > 0:
@@ -1955,7 +1964,7 @@ def documents_get_concordance_paras(para_lang_id,
     else:
         paraLangFilterQ = f"{para_lang_id}"
         
-    query = f"*:*"
+    query = "*:*"
     filterQ = f"para_lgrid:{paraLangFilterQ}"
     try:
         solr_query_spec = \

@@ -7,6 +7,7 @@ Tests of the OPAS functions which depend on the Solr API.  (Direct, rather than 
 #2020-08-24 Changed numeric counts to symbols from unitTestConfig
 
 import unittest
+import requests
 import opasAPISupportLib
 from opasCentralDBLib import opasCentralDB
 import unitTestConfig
@@ -45,6 +46,20 @@ class TestSolrAPIPrevNextDirectFunctions(unittest.TestCase):
     def test_2_get_next_and_prev_articles(self):
         prev_art, match_art, next_art = opasAPISupportLib.metadata_get_next_and_prev_articles(art_id="IJPSP.004.0445A")
         print (prev_art, match_art, next_art)
+        
+    def test_1B_meta_contents_for_source(self):
+        full_URL = base_plus_endpoint_encoded('/v2/Metadata/Contents/IJPSP/4/')
+        response = requests.get(full_URL, headers=headers)
+        assert(response.ok == True)
+        # test return
+        r = response.json()
+        print(r['documentList']['responseInfo']['fullCount'])
+        print(r['documentList']['responseInfo']['supplementalInfo'])
+        print(r['documentList']['responseInfo']['supplementalInfo']["infosource"])
+        print(r['documentList']['responseInfo']['supplementalInfo']["prev_vol"])
+        print(r['documentList']['responseInfo']['supplementalInfo']["next_vol"])
+        print(r['documentList']['responseInfo']['supplementalInfo']["matched_vol"])
+        
     
 if __name__ == '__main__':
     unittest.main()

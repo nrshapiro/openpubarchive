@@ -343,7 +343,7 @@ class Solr:
 
     def __init__(self, url,
                  persistent=True,
-                 timeout=None,
+                 timeout=5, #  was none
                  ssl_key=None,
                  ssl_cert=None,
                  http_user=None,
@@ -829,17 +829,21 @@ class SearchHandler(object):
                 query.append((key, strify(value)))
         request = urllib.urlencode(query, doseq=True)
         conn = self.conn
-        if conn.debug:
-            logging.info("solrpy request: %s" % request)
+        if 1: # conn.debug:
+            logging.info("solrpy request: %s" % urlparse.unquote(request))
 
         try:
+            # nrs trying this 2020-11-18
+            #alt_headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+            #rsp = conn._post(self.selector, request, alt_headers)
+            # End nrs trying this
             rsp = conn._post(self.selector, request, conn.form_headers)
             data = rsp.read()
             if conn.debug:
                 logging.info("solrpy got response: %s" % data)
         except Exception as e:
-            data = None # nrs added since it can error out with no data defined
-            logging.error(f"Solrpy conn.post exception: {e}.  Request: {request}")
+            data = "" # nrs added since it can error out with no data defined
+            logging.error(f"Solrpy conn.post exception: {e}.  Request: {urlparse.unquote(request)}")
         finally:
             if not conn.persistent:
                 conn.close()
