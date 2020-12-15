@@ -11,6 +11,8 @@ import localsecrets
 import urllib.parse
 import json
 import sys
+import inspect
+
 # from opasAPISupportLib import save_opas_session_cookie
 sys.path.append("..") # Adds higher directory to python modules path.
 from config.opasConfig import OPASSESSIONID
@@ -172,6 +174,8 @@ def get_authserver_session_info(session_id, client_id, pads_session_info=None):
     
     """
     ts = time.time()
+    
+    logger.info(f"get_authserver_session_info called by {inspect.stack()[1].function}")
     if pads_session_info is None or session_id is None:
         # not supplied, so fetch
         pads_session_info = get_pads_session_info(session_id=session_id, client_id=client_id, retry=False)
@@ -566,6 +570,7 @@ def get_access_limitations(doc_id,
                                 # let's make sure we know about this user.
                                 if session_info.user_id == opasConfig.USER_NOT_LOGGED_IN_NAME:
                                     # We got this far, We need to find out who this is
+                                    logger.info(f"Full-text request {doc_id}, authorized, but user not logged in {session_info.api_client_id}")
                                     pads_user_info = get_authserver_session_userinfo(session_info.session_id, session_info.api_client_id)
                                     if pads_user_info is not None:
                                         session_info.user_id = pads_user_info.UserId

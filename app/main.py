@@ -4,7 +4,7 @@
 __author__      = "Neil R. Shapiro"
 __copyright__   = "Copyright 2020, Psychoanalytic Electronic Publishing"
 __license__     = "Apache 2.0"
-__version__     = "2020.1213.1.Alpha"
+__version__     = "2020.1213.2.Alpha"
 __status__      = "Development"
 
 """
@@ -100,6 +100,7 @@ import shlex
 import io
 import pathlib
 import urllib.parse
+import inspect
 
 # import json
 
@@ -222,6 +223,9 @@ def get_client_session(response: Response,
     if client_session == 'None': # Not sure where this is coming from as string, but fix it.
         client_session = None
         
+    if client_id is None or client_id == 0 or client_id == opasConfig.NO_CLIENT_ID:
+        raise HTTPException(status_code=400, detail="Must have a valid client-id")
+    
     session_id = opasDocPermissions.find_client_session_id(request, response, client_session)
     # client_id = get_client_id(response, request, 0)
     # if there's no client session, get a session_id from PaDS without logging in
@@ -229,6 +233,7 @@ def get_client_session(response: Response,
         # get one from PaDS, without login info
         # session_info, pads_session_info = opasDocPermissions.pads_get_session(client_id=client_id)
         logger.info(f"Client {client_id} request w/o sessionID: {request.url._url}'")
+        logger.info(f"get_client_session (no session) called by {inspect.stack()[1].function}")
         session_info = opasDocPermissions.get_authserver_session_info(session_id=session_id, client_id=client_id)
         try:
             session_id = session_info.session_id

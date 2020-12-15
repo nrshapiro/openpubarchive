@@ -284,8 +284,12 @@ def get_session_info(request: Request,
         ts = time.time()
         session_info = ocd.get_session_from_db(session_id)
         if session_info is None:
-            logger.info(f"Session {session_id} not found.  Getting from authserver (will save on server)")
-            session_info = opasDocPerm.get_authserver_session_info(session_id=session_id, client_id=client_id)
+            if client_id is None or client_id == 0 or client_id == opasConfig.NO_CLIENT_ID:
+                logger.info(f"get_session_info called by {inspect.stack()[1].function}, with no client_id")
+                raise httpCodes.HTTPException(status_code=400, detail="Must have a valid client-id")
+            else:
+                logger.info(f"Session {session_id} not found.  Getting from authserver (will save on server)")
+                session_info = opasDocPerm.get_authserver_session_info(session_id=session_id, client_id=client_id)
         else:
             logger.debug(f"Session {session_id} found in DB.  Checking if already marked authenticated.")
             if session_info.authenticated == 0: # not logged in
