@@ -3,7 +3,7 @@ chardet==3.0.4
 EbookLib==0.17.1
 future==0.17.1
 idna==2.8
-lxml==4.4.1
+lxml==4.6.2
 passlib==1.7.1
 pydantic==0.32.2
 PyMySQL==0.9.3
