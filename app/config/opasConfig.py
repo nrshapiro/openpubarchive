@@ -100,6 +100,8 @@ DOCUMENT_ACCESS_ARCHIVE = "archive"
 DOCUMENT_ACCESS_UNDEFINED = "undefined"
 DOCUMENT_ACCESS_OFFSITE = "offsite"
 
+PARATEXT_SEARCH_METHOD = 1 # 0=simulated paragraph search, paras not separately indexed; 1=paragraphs indexed, true para search
+PARA_MAX_WORD_DISTANCE = 25
 MIN_EXCERPT_CHARS = 480
 MAX_EXCERPT_CHARS = 2000
 MAX_EXCERPT_PARAS = 10
@@ -231,7 +233,7 @@ DESCRIPTION_PAGEOFFSET = "The relative page number (1 is the first) to return"
 DESCRIPTION_PAGEREQUEST = "The page or page range (from the document's numbering) to return (e.g., 215, or 215-217)"
 DESCRIPTION_PARAM_SOURCETYPE = f"Source type (One of: {list_values(VALS_SOURCE_TYPE)})"
 DESCRIPTION_PARASCOPE = "scope: doc, dreams, dialogs, biblios, per the schema (all the p_ prefixed scopes are also recognized without the p_ here)"
-DESCRIPTION_PARATEXT = "Words or phrases (in quotes) in a paragraph in the document"
+DESCRIPTION_PARATEXT = "Words or phrases (in quotes) in a paragraph in the scope."
 #DESCRIPTION_PARAZONE_V1 = "scope: doc, dreams, dialogs, biblios, per the schema (all the p_ prefixed scopes are also recognized without the p_ here)"
 DESCRIPTION_PATH_SOURCETYPE = f"Source type.  One of: {list_values(VALS_SOURCE_TYPE)})"
 DESCRIPTION_PUBLICATION_PERIOD = "Number of publication years to include (counting back from current year, 0 means current year)"

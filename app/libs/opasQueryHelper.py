@@ -1041,7 +1041,7 @@ def parse_search_query_parameters(search=None,             # url based parameter
                         
                 word_search = search_dict.get("wordsearch")
                 if word_search is not None:
-                    if 0: # to turn on paragraph level 2 searches, but the simulation using proximity
+                    if opasConfig.PARATEXT_SEARCH_METHOD == 1: # to turn on paragraph level 2 searches, but the simulation using proximity
                           # 25 words is what GVPi did and that matches better.
                         if paratext is None:
                             paratext = word_search
@@ -1081,30 +1081,6 @@ def parse_search_query_parameters(search=None,             # url based parameter
     if art_level is not None:
         filter_q = f"&& art_level:{art_level} "  # for solr filter fq
         
-    if paratext is not None:
-        # set up parameters as a solrQueryTermList to share that processing
-        try:
-            query_term_from_params = [
-                                        models.SolrQueryTerm (
-                                                              connector="AND", 
-                                                              parent = parascope,
-                                                              field = "para",
-                                                              words = paratext,
-                                                              synonyms = synonyms,
-                                                              synonyms_suffix = opasConfig.SYNONYM_SUFFIX
-                                                            )
-                                     ]
-    
-            #  if a term list is supplied, add it to the list, otherwise, create list
-            if solrQueryTermList is None:
-                solrQueryTermList = models.SolrQueryTermList(qt=query_term_from_params)
-                solrQueryTermList.artLevel = 2;
-            else:
-                solrQueryTermList.qt.extend(query_term_from_params)
-                solrQueryTermList.artLevel = 2;
-        except Exception as e:
-            logger.error("Error setting up query term list from paratext (search)")
-
     if solrQueryTermList is not None:
         # used for a queryTermList structure which is typically sent via the API endpoint body.
         # It allows each term to set some individual patterns, like turning on synonyms and the field add-on for synonyns
@@ -1197,6 +1173,63 @@ def parse_search_query_parameters(search=None,             # url based parameter
         if facetoffset is not None:
             solr_query_spec.facetSpec["facet_offset"] = facetoffset
     
+    if opasConfig.PARATEXT_SEARCH_METHOD == 1:
+        if paratext is not None:
+            # set up parameters as a solrQueryTermList to share that processing
+            try:
+                query_term_from_params = [
+                                            models.SolrQueryTerm (
+                                                                  connector="AND", 
+                                                                  parent = parascope,
+                                                                  field = "para",
+                                                                  words = paratext,
+                                                                  synonyms = synonyms,
+                                                                  synonyms_suffix = opasConfig.SYNONYM_SUFFIX
+                                                                )
+                                         ]
+        
+                #  if a term list is supplied, add it to the list, otherwise, create list
+                if solrQueryTermList is None:
+                    solrQueryTermList = models.SolrQueryTermList(qt=query_term_from_params)
+                    solrQueryTermList.artLevel = 2;
+                else:
+                    solrQueryTermList.qt.extend(query_term_from_params)
+                    solrQueryTermList.artLevel = 2;
+            except Exception as e:
+                logger.error("Error setting up query term list from paratext (search)")
+    else:
+        if paratext is not None:
+            # simulate paragraph search
+            char_list = ["'", '"', "(", ")"]
+            for c in paratext:
+                if c in char_list:
+                    para_search = False
+                else:
+                    para_search = True
+
+            if para_search:
+                para_parts = re.split("\s+OR|\|\|\s+", paratext)
+                paratext_all = ""
+                for n in para_parts:
+                    if paratext_all != "":
+                        paratext_all += " AND "
+                    paratext_all += f'"{n}"~{opasConfig.PARA_MAX_WORD_DISTANCE}'
+            else:
+                paratext_all = paratext
+                
+            if fulltext1 is None:
+                if parascope is None:
+                    fulltext1 = paratext_all
+                else:
+                    parascope = parascope.replace("p_", "")
+                    if parascope == "doc":
+                        scope = "text_xml"
+                    else:
+                        scope = f"{parascope}_xml"
+                        
+                    fulltext1 = f"{scope}:({paratext_all})"
+            #else, just use fulltext, ignore parascope:paratext
+
     if fulltext1 is not None:
         #  if there are no field specs in the fulltext spec
         if ":" not in fulltext1:

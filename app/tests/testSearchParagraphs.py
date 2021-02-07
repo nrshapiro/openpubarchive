@@ -3,6 +3,7 @@
 
 import unittest
 import requests
+import opasConfig
 
 from unitTestConfig import base_plus_endpoint_encoded, headers
 
@@ -16,7 +17,7 @@ class TestSearchParagraphs(unittest.TestCase):
         response_info = r["documentList"]["responseInfo"]
         response_set = r["documentList"]["responseSet"] 
         print (f"Count: {response_info['count']}")
-        assert(response_info["count"] == 11) 
+        assert(response_info["count"] >= 11) 
         # print (response_set[0])
 
     def test_search_para_2a(self):
@@ -28,7 +29,10 @@ class TestSearchParagraphs(unittest.TestCase):
         response_info = r["documentList"]["responseInfo"]
         response_set = r["documentList"]["responseSet"] 
         print (f"Count: {response_info['count']}")
-        assert(response_info["count"] == 1)
+        if opasConfig.PARATEXT_SEARCH_METHOD:
+            assert(response_info["count"] == 1)
+        else:
+            assert(response_info["count"] >= 11)
         # print (response_set[0])
 
     def test_search_para_2b(self):
@@ -40,7 +44,10 @@ class TestSearchParagraphs(unittest.TestCase):
         response_info = r["documentList"]["responseInfo"]
         response_set = r["documentList"]["responseSet"] 
         print (f"Count: {response_info['count']}")
-        assert(response_info["count"] == 1)
+        if opasConfig.PARATEXT_SEARCH_METHOD:
+            assert(response_info["count"] >= 5)
+        else:
+            assert(response_info["count"] >= 5)
         # print (response_set[0])
 
     def test_search_para_3(self):
