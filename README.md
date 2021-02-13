@@ -1,4 +1,4 @@
-# OpenPubArchive - Open Publications Archive Software (OPAS) 
+# OpenPubArchive - Open Publications Archive Software (Content Server) 
  
 (Software for online publishing of journal archives)
 
